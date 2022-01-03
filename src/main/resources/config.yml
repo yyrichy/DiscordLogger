@@ -1,0 +1,5 @@
+CommandLog:
+  Enabled: true
+  Format: "[$time$] ($UUID$) `$username$` issued: $message$"
+  TimeZone: 'EST'
+  ChannelID: '000000000000000000'
