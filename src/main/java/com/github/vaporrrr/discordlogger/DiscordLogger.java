@@ -1,5 +1,6 @@
 package com.github.vaporrrr.discordlogger;
 
+import com.github.vaporrrr.discordlogger.commands.Reload;
 import com.github.vaporrrr.discordlogger.listeners.DiscordSRVListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,6 +13,7 @@ public class DiscordLogger extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         github.scarsz.discordsrv.DiscordSRV.api.subscribe(discordSRV);
+        getCommand("dl-reload").setExecutor(new Reload(this));
     }
 
     @Override

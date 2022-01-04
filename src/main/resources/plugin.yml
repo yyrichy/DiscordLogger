@@ -1,5 +1,22 @@
 main: ${project.groupId}.${project.artifactId}.${project.name}
 name: ${project.name}
-depend: [DiscordSRV]
+depend: [ DiscordSRV ]
 version: ${project.version}
 author: VapoR
+commands:
+  dl-reload:
+    description: Reload config
+    usage: /dl-reload
+    permission: dl.admin.reload
+permissions:
+  dl.*:
+    description: Wildcard
+    children:
+      dl.admin: true
+      dl.admin.reload: true
+  dl.admin.*:
+    description: All admin perms
+    children:
+      dl.admin.reload: true
+  dl.admin.reload:
+    description: Allows usage of /dl-reload
