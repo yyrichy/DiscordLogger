@@ -1,5 +1,9 @@
 CommandLog:
   Enabled: true
-  Format: '[$timezone$ $time$] `$username$` ($UUID$) issued: ```$message$```'
+  Format:
+  - '[$timezone$ $time$] `$username$` ($UUID$) issued:'
+  - '```yaml'
+  - '$message$'
+  - '```'
   TimeZone: 'EST'
   ChannelID: '000000000000000000'

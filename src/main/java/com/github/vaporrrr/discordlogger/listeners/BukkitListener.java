@@ -12,6 +12,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.TimeZone;
 
 public class BukkitListener implements Listener {
@@ -38,12 +40,16 @@ public class BukkitListener implements Listener {
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         Player player = event.getPlayer();
 
-        String message = discordLogger.getConfig().getString("CommandLog.Format");
-        message = message.replace("$time$", format.format(now));
-        message = message.replace("$timezone$", timeZone);
-        message = message.replace("$UUID$", player.getUniqueId().toString());
-        message = message.replace("$username$", player.getName());
-        message = message.replace("$message$", event.getMessage());
-        channel.sendMessage(message).queue();
+        List<String> message = discordLogger.getConfig().getStringList("CommandLog.Format");
+        for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
+            String line = iterator.next();
+            line = line.replace("$time$", format.format(now));
+            line = line.replace("$timezone$", timeZone);
+            line = line.replace("$UUID$", player.getUniqueId().toString());
+            line = line.replace("$username$", player.getName());
+            line = line.replace("$message$", event.getMessage());
+            iterator.set(line);
+        }
+        channel.sendMessage(String.join("\n", message)).queue();
     }
 }
