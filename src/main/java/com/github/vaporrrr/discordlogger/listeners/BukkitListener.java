@@ -1,6 +1,7 @@
 package com.github.vaporrrr.discordlogger.listeners;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
+import com.github.vaporrrr.discordlogger.threads.LogCommands;
 import github.scarsz.discordsrv.dependencies.jda.api.JDA;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,18 +12,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.TimeZone;
+import java.util.*;
 
 public class BukkitListener implements Listener {
     private final DiscordLogger discordLogger;
     private final JDA jda;
+    private final LogCommands logCommands;
 
     public BukkitListener(DiscordLogger discordLogger, JDA jda) {
         this.discordLogger = discordLogger;
         this.jda = jda;
+        this.logCommands = new LogCommands(discordLogger, jda);
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(logCommands, 0, 4000L);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -50,6 +52,6 @@ public class BukkitListener implements Listener {
             line = line.replace("$message$", event.getMessage());
             iterator.set(line);
         }
-        channel.sendMessage(String.join("\n", message)).queue();
+        logCommands.add(String.join("\n", message));
     }
 }
