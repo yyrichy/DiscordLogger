@@ -55,7 +55,11 @@ public class LogCommands extends TimerTask {
             message.append(m).append('\n');
             queue.remove(0);
         }
-        channel.sendMessage(message.toString()).queue();
+        if (discordLogger.getConfig().getBoolean("CommandLog.DisableMentions")) {
+            channel.sendMessage(message.toString()).allowedMentions(null).queue();
+        } else {
+            channel.sendMessage(message.toString()).queue();
+        }
     }
 
     public void add(String m) {
