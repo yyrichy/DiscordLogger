@@ -1,6 +1,8 @@
+
 CommandLog:
   Enabled: true
   DisableMentions: true
+  IntervalInSeconds: 3
   Format:
   - '[$timezone$ $time$] `$username$` ($UUID$) issued:'
   - '```yaml'

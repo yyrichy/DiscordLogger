@@ -5,7 +5,7 @@ version: ${project.version}
 author: VapoR
 commands:
   dl-reload:
-    description: Reload config
+    description: Reload plugin
     usage: /dl-reload
     permission: dl.admin.reload
 permissions:

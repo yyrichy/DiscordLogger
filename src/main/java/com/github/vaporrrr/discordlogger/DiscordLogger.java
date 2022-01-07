@@ -20,10 +20,17 @@ package com.github.vaporrrr.discordlogger;
 
 import com.github.vaporrrr.discordlogger.commands.Reload;
 import com.github.vaporrrr.discordlogger.listeners.DiscordSRVListener;
+import com.github.vaporrrr.discordlogger.threads.LogCommands;
+import github.scarsz.discordsrv.util.DiscordUtil;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.Timer;
 
 public class DiscordLogger extends JavaPlugin {
     private final DiscordSRVListener discordSRV = new DiscordSRVListener(this);
+    private final Timer t = new Timer();
+    private LogCommands logCommands;
 
     @Override
     public void onEnable() {
@@ -37,5 +44,28 @@ public class DiscordLogger extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Disabling DiscordLogger");
+    }
+
+    public void startLogCommands() {
+        logCommands = new LogCommands(this, DiscordUtil.getJda(), new ArrayList<>());
+        t.scheduleAtFixedRate(logCommands, 0, interval());
+    }
+
+    public void reloadLogCommands() {
+        if (logCommands != null) {
+            logCommands.cancel();
+            logCommands = new LogCommands(this, DiscordUtil.getJda(), logCommands.getQueue());
+            t.scheduleAtFixedRate(logCommands, 0, interval());
+        } else {
+            startLogCommands();
+        }
+    }
+
+    private long interval() {
+        return Math.max(getConfig().getInt("CommandLog.IntervalInSeconds"), 2) * 1000L;
+    }
+
+    public LogCommands getLogCommands() {
+        return logCommands;
     }
 }

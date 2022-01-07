@@ -34,5 +34,6 @@ public class DiscordSRVListener {
     public void discordReadyEvent(DiscordReadyEvent event) {
         discordLogger.getLogger().info("Discord ready!");
         discordLogger.getServer().getPluginManager().registerEvents(new BukkitListener(discordLogger, DiscordUtil.getJda()), discordLogger);
+        discordLogger.startLogCommands();
     }
 }

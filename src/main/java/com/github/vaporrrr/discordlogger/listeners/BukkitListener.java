@@ -19,7 +19,6 @@
 package com.github.vaporrrr.discordlogger.listeners;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
-import com.github.vaporrrr.discordlogger.threads.LogCommands;
 import github.scarsz.discordsrv.dependencies.jda.api.JDA;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -35,14 +34,10 @@ import java.util.*;
 public class BukkitListener implements Listener {
     private final DiscordLogger discordLogger;
     private final JDA jda;
-    private final LogCommands logCommands;
 
     public BukkitListener(DiscordLogger discordLogger, JDA jda) {
         this.discordLogger = discordLogger;
         this.jda = jda;
-        this.logCommands = new LogCommands(discordLogger, jda);
-        Timer t = new Timer();
-        t.scheduleAtFixedRate(logCommands, 0, 4000L);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -70,6 +65,6 @@ public class BukkitListener implements Listener {
             line = line.replace("$message$", event.getMessage());
             iterator.set(line);
         }
-        logCommands.add(String.join("\n", message));
+        discordLogger.getLogCommands().add(String.join("\n", message));
     }
 }
