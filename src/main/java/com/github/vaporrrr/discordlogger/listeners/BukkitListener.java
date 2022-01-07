@@ -62,9 +62,13 @@ public class BukkitListener implements Listener {
             line = line.replace("$timezone$", timeZone);
             line = line.replace("$UUID$", player.getUniqueId().toString());
             line = line.replace("$username$", player.getName());
-            line = line.replace("$message$", event.getMessage());
+            line = line.replace("$message$", escapeMarkdown(event.getMessage()));
             iterator.set(line);
         }
         discordLogger.getLogCommands().add(String.join("\n", message));
+    }
+
+    private String escapeMarkdown(String message) {
+        return message.replace("_", "\\_").replace("*", "\\*").replace("`", "\\`").replace("~", "\\~").replace("|", "\\|").replace(">", "\\>");
     }
 }

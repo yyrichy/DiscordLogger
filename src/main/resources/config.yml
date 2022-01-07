@@ -5,8 +5,6 @@ CommandLog:
   IntervalInSeconds: 3
   Format:
   - '[$timezone$ $time$] `$username$` ($UUID$) issued:'
-  - '```yaml'
-  - '$message$'
-  - '```'
+  - '> $message$'
   TimeZone: 'EST'
   ChannelID: '000000000000000000'
