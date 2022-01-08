@@ -1,10 +1,9 @@
-
 CommandLog:
   Enabled: true
   DisableMentions: true
-  IntervalInSeconds: 3
+  IntervalInSeconds: 5
   Format:
-  - '[$timezone$ $time$] `$username$` ($UUID$) issued:'
-  - '> $message$'
-  TimeZone: 'EST'
+    - '**$username$** [`$timezone$ $time$`] ($UUID$) issued:'
+    - '> $message$'
+  TimeZone: UTC
   ChannelID: '000000000000000000'
