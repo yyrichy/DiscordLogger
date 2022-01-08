@@ -1,6 +1,5 @@
-CommandLog:
+CommandLogger:
   Enabled: true
-  DisableMentions: true
   IntervalInSeconds: 5
   Format:
     - '**$username$** [`$timezone$ $time$`] ($UUID$) issued:'

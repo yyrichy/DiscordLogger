@@ -38,7 +38,7 @@ public class Reload implements CommandExecutor {
             return true;
         }
         discordLogger.reloadConfig();
-        discordLogger.reloadLogCommands();
+        discordLogger.reloadCommandLogger();
         commandSender.sendMessage("Reloaded.");
         return true;
     }
