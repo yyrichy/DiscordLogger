@@ -40,7 +40,7 @@ public class DiscordSRVListener {
             MessageUtil.sendMessageFromConfig("Link.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") linked their Discord: "
                     + event.getUser().getAsTag() + " (" + event.getUser().getId() + ")");
         } catch (RuntimeException e) {
-            DiscordLogger.warn("Could not log account linked event.");
+            DiscordLogger.severe("Could not log account linked event.");
             e.printStackTrace();
         }
     }
@@ -52,7 +52,7 @@ public class DiscordSRVListener {
             MessageUtil.sendMessageFromConfig("Unlink.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") unlinked their Discord: "
                     + (event.getDiscordUser() != null ? event.getDiscordUser().getAsTag() : "<Discord tag unavailable>") + " (" + event.getDiscordId() + ")");
         } catch (RuntimeException e) {
-            DiscordLogger.warn("Could not log account unlinked event.");
+            DiscordLogger.severe("Could not log account unlinked event.");
             e.printStackTrace();
         }
     }

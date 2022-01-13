@@ -28,11 +28,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CommandLogger extends TimerTask {
-    private final String COMMAND_LOGGER_NAME = "CommandLogger";
     private final StringBuilder message = new StringBuilder();
-    private final ArrayList<String> queue;
+    private final ArrayDeque<String> queue;
 
-    public CommandLogger(ArrayList<String> queue) {
+    public CommandLogger(ArrayDeque<String> queue) {
         this.queue = queue;
     }
 
@@ -41,30 +40,29 @@ public class CommandLogger extends TimerTask {
         if (queue == null || queue.isEmpty()) return;
         message.setLength(0);
         while (!queue.isEmpty()) {
-            String m = queue.get(0);
+            String m = queue.getFirst();
             if (message.length() + m.length() > Message.MAX_CONTENT_LENGTH) {
                 break;
             }
             message.append(m).append('\n');
-            queue.remove(0);
+            queue.removeFirst();
         }
         try {
-            MessageUtil.sendMessageFromConfig(DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".ChannelID"), message.toString());
+            MessageUtil.sendMessageFromConfig(DiscordLogger.config().getString("CommandLogger.ChannelID"), message.toString());
         } catch (RuntimeException e) {
-            DiscordLogger.warn("Could not log commands to channel from key " + COMMAND_LOGGER_NAME + ".ChannelID");
+            DiscordLogger.severe("Could not log commands to channel from key CommandLogger.ChannelID");
             e.printStackTrace();
         }
     }
 
     public void processCommand(PlayerCommandPreprocessEvent event) {
-        if (!DiscordLogger.config().getBoolean(COMMAND_LOGGER_NAME + ".Enabled")) return;
-        String timeZone = DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".TimeZone");
+        String timeZone = DiscordLogger.config().getString("CommandLogger.TimeZone");
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         Date now = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         Player player = event.getPlayer();
 
-        List<String> message = DiscordLogger.config().getStringList(COMMAND_LOGGER_NAME + ".Format");
+        List<String> message = DiscordLogger.config().getStringList("CommandLogger.Format");
         for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
             String line = iterator.next();
             line = line.replace("$time$", format.format(now));
@@ -77,7 +75,7 @@ public class CommandLogger extends TimerTask {
         queue.add(String.join("\n", message));
     }
 
-    public ArrayList<String> getQueue() {
+    public ArrayDeque<String> getQueue() {
         return queue;
     }
 

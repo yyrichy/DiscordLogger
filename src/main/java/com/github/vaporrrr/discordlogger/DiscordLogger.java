@@ -21,11 +21,10 @@ package com.github.vaporrrr.discordlogger;
 import com.github.vaporrrr.discordlogger.commands.Reload;
 import com.github.vaporrrr.discordlogger.listeners.DiscordSRVListener;
 import com.github.vaporrrr.discordlogger.threads.CommandLogger;
-import github.scarsz.discordsrv.util.DiscordUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Timer;
 
 public class DiscordLogger extends JavaPlugin {
@@ -57,20 +56,16 @@ public class DiscordLogger extends JavaPlugin {
         return getPlugin(DiscordLogger.class);
     }
 
+    public CommandLogger getCommandLogger() {
+        return commandLogger;
+    }
+
     public static FileConfiguration config() {
         return getPlugin().config;
     }
 
-    public static void warn(String message) {
-        getPlugin().getLogger().warning(message);
-    }
-
-    public static void info(String message) {
-        getPlugin().getLogger().info(message);
-    }
-
     public void startCommandLogger() {
-        commandLogger = new CommandLogger(new ArrayList<>());
+        commandLogger = new CommandLogger(new ArrayDeque<>());
         t.scheduleAtFixedRate(commandLogger, 0, interval());
     }
 
@@ -85,10 +80,24 @@ public class DiscordLogger extends JavaPlugin {
     }
 
     private long interval() {
-        return Math.max(config().getInt("CommandLogger.IntervalInSeconds"), 2) * 1000L;
+        int interval = config().getInt("CommandLogger.IntervalInSeconds");
+        if (interval < 2) {
+            warn("CommandLogger.IntervalInSeconds is set to less than 2 seconds. This is not allowed to prevent rate limiting. Setting interval to 2.");
+            interval = 2;
+            config().set("CommandLogger.IntervalInSeconds", interval);
+        }
+        return interval * 1000L;
     }
 
-    public CommandLogger getCommandLogger() {
-        return commandLogger;
+    public static void info(String message) {
+        getPlugin().getLogger().info(message);
+    }
+
+    public static void warn(String message) {
+        getPlugin().getLogger().warning(message);
+    }
+
+    public static void severe(String message) {
+        getPlugin().getLogger().severe(message);
     }
 }

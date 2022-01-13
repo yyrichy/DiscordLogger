@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 public class BukkitListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        if (!DiscordLogger.config().getBoolean("CommandLogger.Enabled")) return;
         DiscordLogger.getPlugin().getCommandLogger().processCommand(event);
     }
 }
