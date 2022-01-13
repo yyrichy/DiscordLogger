@@ -19,8 +19,7 @@
 package com.github.vaporrrr.discordlogger.threads;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
-import github.scarsz.discordsrv.dependencies.jda.api.JDA;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
+import com.github.vaporrrr.discordlogger.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -32,10 +31,8 @@ public class CommandLogger extends TimerTask {
     private final String COMMAND_LOGGER_NAME = "CommandLogger";
     private final StringBuilder message = new StringBuilder();
     private final ArrayList<String> queue;
-    private final JDA jda;
 
-    public CommandLogger(JDA jda, ArrayList<String> queue) {
-        this.jda = jda;
+    public CommandLogger(ArrayList<String> queue) {
         this.queue = queue;
     }
 
@@ -43,11 +40,6 @@ public class CommandLogger extends TimerTask {
     public void run() {
         if (queue == null || queue.isEmpty()) return;
         message.setLength(0);
-        TextChannel channel = jda.getTextChannelById(DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".ChannelID"));
-        if (channel == null) {
-            DiscordLogger.warn("Could not log commands because TextChannel not not found from " + COMMAND_LOGGER_NAME + ".ChannelID");
-            return;
-        }
         while (!queue.isEmpty()) {
             String m = queue.get(0);
             if (message.length() + m.length() > Message.MAX_CONTENT_LENGTH) {
@@ -56,7 +48,12 @@ public class CommandLogger extends TimerTask {
             message.append(m).append('\n');
             queue.remove(0);
         }
-        channel.sendMessage(message.toString()).queue();
+        try {
+            MessageUtil.sendMessageFromConfig(DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".ChannelID"), message.toString());
+        } catch (RuntimeException e) {
+            DiscordLogger.warn("Could not log commands to channel from key " + COMMAND_LOGGER_NAME + ".ChannelID");
+            e.printStackTrace();
+        }
     }
 
     public void processCommand(PlayerCommandPreprocessEvent event) {

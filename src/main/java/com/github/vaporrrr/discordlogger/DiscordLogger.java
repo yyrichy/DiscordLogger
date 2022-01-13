@@ -70,14 +70,14 @@ public class DiscordLogger extends JavaPlugin {
     }
 
     public void startCommandLogger() {
-        commandLogger = new CommandLogger(DiscordUtil.getJda(), new ArrayList<>());
+        commandLogger = new CommandLogger(new ArrayList<>());
         t.scheduleAtFixedRate(commandLogger, 0, interval());
     }
 
     public void reloadCommandLogger() {
         if (commandLogger != null) {
             commandLogger.cancel();
-            commandLogger = new CommandLogger(DiscordUtil.getJda(), commandLogger.getQueue());
+            commandLogger = new CommandLogger(commandLogger.getQueue());
             t.scheduleAtFixedRate(commandLogger, 0, interval());
         } else {
             startCommandLogger();
