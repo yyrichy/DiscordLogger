@@ -1,8 +1,14 @@
 CommandLogger:
   Enabled: true
+  ChannelID: '000000000000000000'
   IntervalInSeconds: 5
   Format:
     - '**$username$** [`$timezone$ $time$`] ($UUID$) issued:'
     - '> $message$'
   TimeZone: UTC
+Link:
+  Enabled: true
+  ChannelID: '000000000000000000'
+Unlink:
+  Enabled: true
   ChannelID: '000000000000000000'

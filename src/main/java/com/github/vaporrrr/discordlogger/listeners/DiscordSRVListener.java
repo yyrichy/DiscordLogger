@@ -19,20 +19,41 @@
 package com.github.vaporrrr.discordlogger.listeners;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
+import com.github.vaporrrr.discordlogger.util.MessageUtil;
 import github.scarsz.discordsrv.api.Subscribe;
+import github.scarsz.discordsrv.api.events.AccountLinkedEvent;
+import github.scarsz.discordsrv.api.events.AccountUnlinkedEvent;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
 
 public class DiscordSRVListener {
-    private final DiscordLogger discordLogger;
-
-    public DiscordSRVListener(DiscordLogger discordLogger) {
-        this.discordLogger = discordLogger;
+    @Subscribe
+    public void discordReadyEvent(DiscordReadyEvent event) {
+        DiscordLogger.info("Discord ready!");
+        DiscordLogger.getPlugin().getServer().getPluginManager().registerEvents(new BukkitListener(), DiscordLogger.getPlugin());
+        DiscordLogger.getPlugin().startCommandLogger();
     }
 
     @Subscribe
-    public void discordReadyEvent(DiscordReadyEvent event) {
-        discordLogger.info("Discord ready!");
-        discordLogger.getServer().getPluginManager().registerEvents(new BukkitListener(discordLogger), discordLogger);
-        discordLogger.startCommandLogger();
+    public void accountsLinked(AccountLinkedEvent event) {
+        if (!DiscordLogger.config().getBoolean("Link.Enabled")) return;
+        try {
+            MessageUtil.sendMessageFromConfig("Link.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") linked their Discord: "
+                    + event.getUser().getAsTag() + " (" + event.getUser().getId() + ")");
+        } catch (RuntimeException e) {
+            DiscordLogger.warn("Could not log account linked event.");
+            e.printStackTrace();
+        }
+    }
+
+    @Subscribe
+    public void accountsUnlinked(AccountUnlinkedEvent event) {
+        if (!DiscordLogger.config().getBoolean("Unlink.Enabled")) return;
+        try {
+            MessageUtil.sendMessageFromConfig("Unlink.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") unlinked their Discord: "
+                    + (event.getDiscordUser() != null ? event.getDiscordUser().getAsTag() : "<Discord tag unavailable>") + " (" + event.getDiscordId() + ")");
+        } catch (RuntimeException e) {
+            DiscordLogger.warn("Could not log account unlinked event.");
+            e.printStackTrace();
+        }
     }
 }

@@ -32,11 +32,9 @@ public class CommandLogger extends TimerTask {
     private final String COMMAND_LOGGER_NAME = "CommandLogger";
     private final StringBuilder message = new StringBuilder();
     private final ArrayList<String> queue;
-    private final DiscordLogger discordLogger;
     private final JDA jda;
 
-    public CommandLogger(DiscordLogger discordLogger, JDA jda, ArrayList<String> queue) {
-        this.discordLogger = discordLogger;
+    public CommandLogger(JDA jda, ArrayList<String> queue) {
         this.jda = jda;
         this.queue = queue;
     }
@@ -45,9 +43,9 @@ public class CommandLogger extends TimerTask {
     public void run() {
         if (queue == null || queue.isEmpty()) return;
         message.setLength(0);
-        TextChannel channel = jda.getTextChannelById(discordLogger.getString(COMMAND_LOGGER_NAME + ".ChannelID"));
+        TextChannel channel = jda.getTextChannelById(DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".ChannelID"));
         if (channel == null) {
-            discordLogger.warning("Could not log commands because TextChannel not not found from " + COMMAND_LOGGER_NAME + ".ChannelID");
+            DiscordLogger.warn("Could not log commands because TextChannel not not found from " + COMMAND_LOGGER_NAME + ".ChannelID");
             return;
         }
         while (!queue.isEmpty()) {
@@ -62,14 +60,14 @@ public class CommandLogger extends TimerTask {
     }
 
     public void processCommand(PlayerCommandPreprocessEvent event) {
-        if (!discordLogger.getBoolean(COMMAND_LOGGER_NAME + ".Enabled")) return;
-        String timeZone = discordLogger.getString(COMMAND_LOGGER_NAME + ".TimeZone");
+        if (!DiscordLogger.config().getBoolean(COMMAND_LOGGER_NAME + ".Enabled")) return;
+        String timeZone = DiscordLogger.config().getString(COMMAND_LOGGER_NAME + ".TimeZone");
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         Date now = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         Player player = event.getPlayer();
 
-        List<String> message = discordLogger.getStringList(COMMAND_LOGGER_NAME + ".Format");
+        List<String> message = DiscordLogger.config().getStringList(COMMAND_LOGGER_NAME + ".Format");
         for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
             String line = iterator.next();
             line = line.replace("$time$", format.format(now));

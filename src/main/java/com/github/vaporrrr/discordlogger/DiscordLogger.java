@@ -22,24 +22,30 @@ import com.github.vaporrrr.discordlogger.commands.Reload;
 import com.github.vaporrrr.discordlogger.listeners.DiscordSRVListener;
 import com.github.vaporrrr.discordlogger.threads.CommandLogger;
 import github.scarsz.discordsrv.util.DiscordUtil;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 
 public class DiscordLogger extends JavaPlugin {
-    private final DiscordSRVListener discordSRV = new DiscordSRVListener(this);
+    private FileConfiguration config;
+    private final DiscordSRVListener discordSRV = new DiscordSRVListener();
     private final Timer t = new Timer();
     private CommandLogger commandLogger;
+
+    public DiscordLogger() {
+        super();
+    }
 
     @Override
     public void onEnable() {
         info("Enabling DiscordLogger");
         getConfig().options().copyDefaults(true);
         saveConfig();
+        config = getConfig();
         github.scarsz.discordsrv.DiscordSRV.api.subscribe(discordSRV);
-        getCommand("dl-reload").setExecutor(new Reload(this));
+        getCommand("dl-reload").setExecutor(new Reload());
     }
 
     @Override
@@ -47,39 +53,31 @@ public class DiscordLogger extends JavaPlugin {
         info("Disabling DiscordLogger");
     }
 
-    public List<String> getStringList(String path) {
-        return getConfig().getStringList(path);
+    public static DiscordLogger getPlugin() {
+        return getPlugin(DiscordLogger.class);
     }
 
-    public String getString(String path) {
-        return getConfig().getString(path);
+    public static FileConfiguration config() {
+        return getPlugin().config;
     }
 
-    public boolean getBoolean(String path) {
-        return getConfig().getBoolean(path);
+    public static void warn(String message) {
+        getPlugin().getLogger().warning(message);
     }
 
-    public int getInt(String path) {
-        return getConfig().getInt(path);
-    }
-
-    public void warning(String message) {
-        getLogger().warning(message);
-    }
-
-    public void info(String message) {
-        getLogger().info(message);
+    public static void info(String message) {
+        getPlugin().getLogger().info(message);
     }
 
     public void startCommandLogger() {
-        commandLogger = new CommandLogger(this, DiscordUtil.getJda(), new ArrayList<>());
+        commandLogger = new CommandLogger(DiscordUtil.getJda(), new ArrayList<>());
         t.scheduleAtFixedRate(commandLogger, 0, interval());
     }
 
     public void reloadCommandLogger() {
         if (commandLogger != null) {
             commandLogger.cancel();
-            commandLogger = new CommandLogger(this, DiscordUtil.getJda(), commandLogger.getQueue());
+            commandLogger = new CommandLogger(DiscordUtil.getJda(), commandLogger.getQueue());
             t.scheduleAtFixedRate(commandLogger, 0, interval());
         } else {
             startCommandLogger();
@@ -87,7 +85,7 @@ public class DiscordLogger extends JavaPlugin {
     }
 
     private long interval() {
-        return Math.max(getInt("CommandLogger.IntervalInSeconds"), 2) * 1000L;
+        return Math.max(config().getInt("CommandLogger.IntervalInSeconds"), 2) * 1000L;
     }
 
     public CommandLogger getCommandLogger() {
