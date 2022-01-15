@@ -68,7 +68,7 @@ public class CommandLogger extends TimerTask {
             line = line.replace("$time$", format.format(now));
             line = line.replace("$timezone$", timeZone);
             line = line.replace("$UUID$", player.getUniqueId().toString());
-            line = line.replace("$username$", player.getName());
+            line = line.replace("$username$", escapeMarkdown(player.getName()));
             line = line.replace("$message$", escapeMarkdown(event.getMessage()));
             iterator.set(line);
         }
