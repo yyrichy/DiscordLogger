@@ -21,28 +21,41 @@ package com.github.vaporrrr.discordlogger;
 import com.github.vaporrrr.discordlogger.commands.Reload;
 import com.github.vaporrrr.discordlogger.listeners.DiscordSRVListener;
 import com.github.vaporrrr.discordlogger.threads.CommandLogger;
-import org.bukkit.configuration.file.FileConfiguration;
+import de.leonhard.storage.Config;
+import de.leonhard.storage.LightningBuilder;
+import de.leonhard.storage.internal.settings.ConfigSettings;
+import de.leonhard.storage.internal.settings.DataType;
+import de.leonhard.storage.internal.settings.ReloadSettings;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Timer;
 
 public class DiscordLogger extends JavaPlugin {
-    private FileConfiguration config;
+    private final Config config;
     private final DiscordSRVListener discordSRV = new DiscordSRVListener();
     private final Timer t = new Timer();
     private CommandLogger commandLogger;
 
     public DiscordLogger() {
         super();
+        InputStream is = getClassLoader().getResourceAsStream("config.yml");
+        config = LightningBuilder
+                .fromFile(new File(getDataFolder(), "config.yml"))
+                .addInputStream(is)
+                .setDataType(DataType.SORTED)
+                .setConfigSettings(ConfigSettings.PRESERVE_COMMENTS)
+                .setReloadSettings(ReloadSettings.MANUALLY)
+                .createConfig()
+                .addDefaultsFromInputStream(is);
     }
 
     @Override
     public void onEnable() {
         info("Enabling DiscordLogger");
-        getConfig().options().copyDefaults(true);
-        saveConfig();
-        config = getConfig();
+        info(config().getString("CommandLogger.ChannelID"));
         github.scarsz.discordsrv.DiscordSRV.api.subscribe(discordSRV);
         getCommand("dl-reload").setExecutor(new Reload());
     }
@@ -60,8 +73,12 @@ public class DiscordLogger extends JavaPlugin {
         return commandLogger;
     }
 
-    public static FileConfiguration config() {
+    public static Config config() {
         return getPlugin().config;
+    }
+
+    public void reloadConfig() {
+        config().forceReload();
     }
 
     public void startCommandLogger() {

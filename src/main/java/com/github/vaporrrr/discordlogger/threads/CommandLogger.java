@@ -20,6 +20,8 @@ package com.github.vaporrrr.discordlogger.threads;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
 import com.github.vaporrrr.discordlogger.util.MessageUtil;
+import github.scarsz.discordsrv.util.DiscordUtil;
+import github.scarsz.discordsrv.util.PlaceholderUtil;
 import net.dv8tion.jda.api.entities.Message;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -56,11 +58,11 @@ public class CommandLogger extends TimerTask {
     }
 
     public void processCommand(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
         String timeZone = DiscordLogger.config().getString("CommandLogger.TimeZone");
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         Date now = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        Player player = event.getPlayer();
 
         List<String> message = DiscordLogger.config().getStringList("CommandLogger.Format");
         for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
@@ -68,8 +70,9 @@ public class CommandLogger extends TimerTask {
             line = line.replace("$time$", format.format(now));
             line = line.replace("$timezone$", timeZone);
             line = line.replace("$UUID$", player.getUniqueId().toString());
-            line = line.replace("$username$", escapeMarkdown(player.getName()));
-            line = line.replace("$message$", escapeMarkdown(event.getMessage()));
+            line = line.replace("$username$", DiscordUtil.escapeMarkdown(player.getName()));
+            line = line.replace("$message$", DiscordUtil.escapeMarkdown(event.getMessage()));
+            line = PlaceholderUtil.replacePlaceholdersToDiscord(line, player);
             iterator.set(line);
         }
         queue.add(String.join("\n", message));
@@ -77,9 +80,5 @@ public class CommandLogger extends TimerTask {
 
     public ArrayDeque<String> getQueue() {
         return queue;
-    }
-
-    private String escapeMarkdown(String message) {
-        return message.replace("_", "\\_").replace("*", "\\*").replace("`", "\\`").replace("~", "\\~").replace("|", "\\|").replace(">", "\\>");
     }
 }
