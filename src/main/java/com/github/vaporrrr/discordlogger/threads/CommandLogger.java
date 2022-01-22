@@ -67,11 +67,11 @@ public class CommandLogger extends TimerTask {
         List<String> message = DiscordLogger.config().getStringList("CommandLogger.Format");
         for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
             String line = iterator.next();
-            line = line.replace("$time$", format.format(now));
-            line = line.replace("$timezone$", timeZone);
-            line = line.replace("$UUID$", player.getUniqueId().toString());
-            line = line.replace("$username$", DiscordUtil.escapeMarkdown(player.getName()));
-            line = line.replace("$message$", DiscordUtil.escapeMarkdown(event.getMessage()));
+            line = line.replace("%time%", format.format(now));
+            line = line.replace("%timezone%", timeZone);
+            line = line.replace("%UUID%", player.getUniqueId().toString());
+            line = line.replace("%username_escape_markdown%", DiscordUtil.escapeMarkdown(player.getName()));
+            line = line.replace("%message_escape_markdown%", DiscordUtil.escapeMarkdown(event.getMessage()));
             line = PlaceholderUtil.replacePlaceholdersToDiscord(line, player);
             iterator.set(line);
         }

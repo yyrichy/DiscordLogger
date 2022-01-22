@@ -3,8 +3,8 @@ CommandLogger:
   ChannelID: '000000000000000000'
   IntervalInSeconds: 5
   Format:
-    - '**$username$** [`$timezone$ $time$`] ($UUID$) issued:'
-    - '> $message$'
+    - '**%username_escape_markdown%** [`%timezone% %time%`] (%UUID%) issued:'
+    - '> %message_escape_markdown%'
   TimeZone: UTC
 Link:
   Enabled: true
