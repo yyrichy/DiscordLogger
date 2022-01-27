@@ -22,15 +22,18 @@ import com.github.vaporrrr.discordlogger.DiscordLogger;
 import com.github.vaporrrr.discordlogger.util.MessageUtil;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import github.scarsz.discordsrv.util.PlaceholderUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.entities.Message;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-public class CommandLogger extends TimerTask {
+public class CommandLogger extends Thread {
     private final StringBuilder message = new StringBuilder();
+    @Getter
     private final ArrayDeque<String> queue;
 
     public CommandLogger(ArrayDeque<String> queue) {
@@ -39,21 +42,32 @@ public class CommandLogger extends TimerTask {
 
     @Override
     public void run() {
-        if (queue == null || queue.isEmpty()) return;
-        message.setLength(0);
-        while (!queue.isEmpty()) {
-            String m = queue.getFirst();
-            if (message.length() + m.length() > Message.MAX_CONTENT_LENGTH) {
-                break;
-            }
-            message.append(m).append('\n');
-            queue.removeFirst();
-        }
         try {
-            MessageUtil.sendMessageFromConfig(DiscordLogger.config().getString("CommandLogger.ChannelID"), message.toString());
-        } catch (RuntimeException e) {
-            DiscordLogger.severe("Could not log commands to channel from key CommandLogger.ChannelID");
-            e.printStackTrace();
+            while (!interrupted()) {
+                if (queue == null || queue.isEmpty()) return;
+                message.setLength(0);
+                long interval = DiscordLogger.config().getLong("CommandLofgger.IntervalInSeconds");
+                if (interval < 2) {
+                    DiscordLogger.warn("CommandLogger.IntervalInSeconds is set to below 2 seconds, overriding to a 2 second interval.");
+                    DiscordLogger.config().set("CommandLogger.IntervalInSeconds", 2);
+                    interval = 2;
+                }
+                while (!queue.isEmpty()) {
+                    String m = queue.getFirst();
+                    if (message.length() + m.length() > Message.MAX_CONTENT_LENGTH) {
+                        break;
+                    }
+                    message.append(m).append('\n');
+                    queue.removeFirst();
+                }
+                try {
+                    MessageUtil.sendMessageFromConfig("CommandLogger.ChannelID", message.toString());
+                } catch (RuntimeException e) {
+                    DiscordLogger.severe("Could not log commands to channel from key CommandLogger.ChannelID: " + e.getMessage());
+                }
+                Thread.sleep(TimeUnit.SECONDS.toMillis(interval));
+            }
+        } catch (InterruptedException ignored) {
         }
     }
 
@@ -76,9 +90,5 @@ public class CommandLogger extends TimerTask {
             iterator.set(line);
         }
         queue.add(String.join("\n", message));
-    }
-
-    public ArrayDeque<String> getQueue() {
-        return queue;
     }
 }
