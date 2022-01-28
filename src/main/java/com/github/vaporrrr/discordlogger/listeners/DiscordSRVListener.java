@@ -37,7 +37,7 @@ public class DiscordSRVListener {
     public void accountsLinked(AccountLinkedEvent event) {
         if (!DiscordLogger.config().getBoolean("Link.Enabled")) return;
         try {
-            MessageUtil.sendMessageFromConfig("Link.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") linked their Discord: "
+            MessageUtil.sendMessageFromConfig("Link.ChannelID", (event.getPlayer().getName() != null ? event.getPlayer().getName() + " " : "") + "(" + event.getPlayer().getUniqueId() + ") linked their Discord: "
                     + event.getUser().getAsTag() + " (" + event.getUser().getId() + ")");
         } catch (RuntimeException e) {
             DiscordLogger.severe("Could not log account linked event: " + e.getMessage());
@@ -48,7 +48,7 @@ public class DiscordSRVListener {
     public void accountsUnlinked(AccountUnlinkedEvent event) {
         if (!DiscordLogger.config().getBoolean("Unlink.Enabled")) return;
         try {
-            MessageUtil.sendMessageFromConfig("Unlink.ChannelID", event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") unlinked their Discord: "
+            MessageUtil.sendMessageFromConfig("Unlink.ChannelID", (event.getPlayer().getName() != null ? event.getPlayer().getName() + " " : "") + "    (" + event.getPlayer().getUniqueId() + ") unlinked their Discord: "
                     + (event.getDiscordUser() != null ? event.getDiscordUser().getAsTag() : "<Discord tag unavailable>") + " (" + event.getDiscordId() + ")");
         } catch (RuntimeException e) {
             DiscordLogger.severe("Could not log account unlinked event: " + e.getMessage());
