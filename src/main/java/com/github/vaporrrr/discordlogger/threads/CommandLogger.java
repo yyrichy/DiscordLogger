@@ -44,11 +44,11 @@ public class CommandLogger extends Thread {
     public void run() {
         try {
             while (!interrupted()) {
-                if (queue == null || queue.isEmpty()) return;
+                if (queue == null || queue.isEmpty()) continue;
                 message.setLength(0);
-                long interval = DiscordLogger.config().getLong("CommandLofgger.IntervalInSeconds");
+                int interval = DiscordLogger.config().getInt("CommandLogger.IntervalInSeconds");
                 if (interval < 2) {
-                    DiscordLogger.warn("CommandLogger.IntervalInSeconds is set to below 2 seconds, overriding to a 2 second interval.");
+                    DiscordLogger.warn("CommandLogger.IntervalInSeconds is set to below 2 seconds, overriding to a 2 second interval");
                     DiscordLogger.config().set("CommandLogger.IntervalInSeconds", 2);
                     interval = 2;
                 }

@@ -37,7 +37,7 @@ public class DiscordLogger extends JavaPlugin {
     private final Config config;
     private final DiscordSRVListener discordSRV = new DiscordSRVListener();
     @Getter
-    CommandLogger commandLogger;
+    private CommandLogger commandLogger;
 
     public DiscordLogger() {
         super();
@@ -75,7 +75,6 @@ public class DiscordLogger extends JavaPlugin {
     @Override
     public void onEnable() {
         info("Enabling DiscordLogger");
-        info(config().getString("CommandLogger.ChannelID"));
         github.scarsz.discordsrv.DiscordSRV.api.subscribe(discordSRV);
         getCommand("dl-reload").setExecutor(new Reload());
     }
@@ -89,23 +88,18 @@ public class DiscordLogger extends JavaPlugin {
         config().forceReload();
     }
 
-    public void setCommandLogger(CommandLogger commandLogger) {
-        this.commandLogger = commandLogger;
-    }
-
     public void startCommandLogger() {
-        getPlugin().setCommandLogger(new CommandLogger(new ArrayDeque<>()));
-        getPlugin().getCommandLogger().start();
+        getPlugin().commandLogger = new CommandLogger(new ArrayDeque<>());
+        getPlugin().commandLogger.start();
     }
 
     public void reloadCommandLogger() {
-        CommandLogger commandLogger = getPlugin().getCommandLogger();
-        if (commandLogger != null) {
-            commandLogger.interrupt();
-            getPlugin().setCommandLogger(new CommandLogger(commandLogger.getQueue()));
-            getPlugin().getCommandLogger().start();
-        } else {
+        if (getPlugin().commandLogger == null) {
             startCommandLogger();
+        } else {
+            if (!getPlugin().commandLogger.isInterrupted()) getPlugin().commandLogger.interrupt();
+            getPlugin().commandLogger = new CommandLogger(getPlugin().commandLogger.getQueue());
+            getPlugin().commandLogger.start();
         }
     }
 }
