@@ -19,15 +19,20 @@
 package com.github.vaporrrr.discordlogger.listeners;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
+import com.github.vaporrrr.discordlogger.util.Placeholder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class BukkitListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         if (!DiscordLogger.config().getBoolean("CommandLogger.Enabled")) return;
-        DiscordLogger.getPlugin().getCommandLogger().processCommand(event);
+        List<String> message = DiscordLogger.config().getStringList("CommandLogger.Format");
+        DiscordLogger.getPlugin().getCommandLogger().add(message.stream().map(l -> Placeholder.replacePlaceholders(l, event)).collect(Collectors.joining("\n")));
     }
 }

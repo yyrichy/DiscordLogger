@@ -20,15 +20,10 @@ package com.github.vaporrrr.discordlogger.threads;
 
 import com.github.vaporrrr.discordlogger.DiscordLogger;
 import com.github.vaporrrr.discordlogger.util.MessageUtil;
-import github.scarsz.discordsrv.util.DiscordUtil;
-import github.scarsz.discordsrv.util.PlaceholderUtil;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Message;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
 
 public class CommandLogger extends Thread {
@@ -71,24 +66,7 @@ public class CommandLogger extends Thread {
         }
     }
 
-    public void processCommand(PlayerCommandPreprocessEvent event) {
-        Player player = event.getPlayer();
-        String timeZone = DiscordLogger.config().getString("CommandLogger.TimeZone");
-        TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
-        Date now = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-
-        List<String> message = DiscordLogger.config().getStringList("CommandLogger.Format");
-        for (ListIterator<String> iterator = message.listIterator(); iterator.hasNext(); ) {
-            String line = iterator.next();
-            line = line.replace("%time%", format.format(now));
-            line = line.replace("%timezone%", timeZone);
-            line = line.replace("%UUID%", player.getUniqueId().toString());
-            line = line.replace("%username_escape_markdown%", DiscordUtil.escapeMarkdown(player.getName()));
-            line = line.replace("%message_escape_markdown%", DiscordUtil.escapeMarkdown(event.getMessage()));
-            line = PlaceholderUtil.replacePlaceholdersToDiscord(line, player);
-            iterator.set(line);
-        }
-        queue.add(String.join("\n", message));
+    public void add(String message) {
+        queue.add(message);
     }
 }
